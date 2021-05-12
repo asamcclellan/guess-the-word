@@ -1,6 +1,6 @@
-const guessedLetters = document.querySelector(".guessed-letters");
+const guesses = document.querySelector(".guessed-letters");
 // where your guessed letters will appear
-const button = document.querySelector(".guess");
+const guessButton = document.querySelector(".guess");
 // the button with "guess" in it
 const letterInput = document.querySelector(".letter");
 // where the player enters text
@@ -16,8 +16,10 @@ const playAgainButton = document.querySelector(".play-again")
 // hidden: appears when it's time to play again
 const word = "magnolia";
 // starting word to test the script
+const guessedLetters = [];
+// this will contain the players guesses
 
-const wipUpdater = function () {
+const wipUpdater = function (word) {
     const freshWord = [];
 
     for (let letter of word) {
@@ -27,24 +29,43 @@ const wipUpdater = function () {
     progress.innerText = freshWord.join("");
 }
 
-wipUpdater();
+wipUpdater(word);
 
-button.addEventListener("click", function (e) {
+guessButton.addEventListener("click", function (e) {
     e.preventDefault();
     const inputValue = letterInput.value;
 
+    checkInput (inputValue);
+    letterInput.value = "";
+})
+
+const checkInput = function (inputValue) {
+    const acceptedLetter = /[a-zA-Z]/
+    makeGuess(inputValue);
+
     if (inputValue != "") {
         if (inputValue.length === 1) {
-            message.classList.add("hide");
-            letterInput.value = "";
+            if (inputValue.match(acceptedLetter)) {
+                return inputValue;
+            } else {
+                message.innerText = "Letters only please!"
+            }
         } else {
-            message.classList.remove("hide");
-            message.innerText = "That's too many letters!";
-            letterInput.value = "";
+            message.innerText = "Too many characters, no cheating!"
         }
     } else {
-        message.classList.remove("hide");
-        message.innerText = "Please enter something!"
-        letterInput.value = "";
+        message.innerText = "Please input something!"
     }
-})
+
+}
+
+const makeGuess = function (inputValue) {
+    inputValue = inputValue.toUpperCase();
+
+    if (guessedLetters.includes(inputValue)) {
+        message.innerText = `You've already guessed ${inputValue}!`;
+    } else {
+        guessedLetters.push(inputValue);
+        console.log(guessedLetters);
+    }
+}
