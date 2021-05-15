@@ -14,12 +14,25 @@ const message = document.querySelector(".message");
 // where messages will appear when players guess a letter
 const playAgainButton = document.querySelector(".play-again")
 // hidden: appears when it's time to play again
-const word = "magnolia";
+let word = "";
 // starting word to test the script
 const guessedLetters = [];
 // this will contain the players guesses
+let remainingGuesses = 8;
+// maximum number of guesses the player can make
 
-const makeWord = function (word) {
+const getWord = async function () {
+    const request = await fetch("https://gist.githubusercontent.com/skillcrush-curriculum/7061f1d4d3d5bfe47efbfbcfe42bf57e/raw/5ffc447694486e7dea686f34a6c085ae371b43fe/words.txt");
+    const data = await request.text();
+    // console.log(data);
+    const wordArray = data.split("\n");
+    // console.log(wordArray);
+    const randomWordIndex = Math.floor(Math.random() * wordArray.length);
+    const randomWord = wordArray[randomWordIndex];
+    randomWord.trim();
+    console.log(`Random word: ${randomWord}`);
+    word = randomWord;
+
     const freshWord = [];
 
     for (let letter of word) {
@@ -27,10 +40,21 @@ const makeWord = function (word) {
     }
 
     progress.innerText = freshWord.join("");
-    //understand the join method more
 }
 
-makeWord(word);
+getWord();
+
+// const makeWord = function (word) {
+//     const freshWord = [];
+
+//     for (let letter of word) {
+//         freshWord.push("●");
+//     }
+
+//     progress.innerText = freshWord.join("");
+// }
+
+// makeWord(word); obsoleted once we made getWord()
 
 guessButton.addEventListener("click", function (e) {
     e.preventDefault();
@@ -52,6 +76,8 @@ const checkInput = function (inputValue) {
                     guessedLetters.push(inputValue);
                     // console.log(guessedLetters);
                     displayGuesses(guessedLetters);
+                    guessCountdown(inputValue);
+
                     updateWip(guessedLetters);
                     return inputValue;
                 } else {
@@ -98,14 +124,28 @@ const updateWip = function (guessedLetters) {
             buildWord.push("●");
         }
     }
+
     progress.innerText = buildWord.join("");
     console.log(`buildWord: ${buildWord}`);
-    //understand the join method more
     checkIfWin();
 }
 
 const checkIfWin = function () {
     if (word.toUpperCase() === progress.innerText) {
-        message.innerHTML = `<p class="highlight">You guessed the correct word! Congrats!</p>`
+        message.classList.add("win");
+        message.innerHTML = `<p class="highlight">You guessed the correct word! Congrats!</p>`;
+    }
+}
+
+const guessCountdown = function (inputValue) {
+    const upperWord = word.toUpperCase();
+    const upperInput = inputValue.toUpperCase();
+
+    if (upperWord.includes(inputValue)){
+        message.innerText = 'That was a good guess!';
+    } else {
+        message.innerText = "That guess wasn't part of the word. :/";
+        remainingGuesses -= 1;
+        remainingSpan.innerText = `${remainingGuesses} guesses`
     }
 }
